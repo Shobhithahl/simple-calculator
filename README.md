@@ -21,7 +21,7 @@ A fun and interactive terminal-based Sudoku game written in Python!
 1. Clone or download this repository
 2. Navigate to the game directory:
 ```bash
-cd "simple calc"
+cd simple-calculator
 ```
 
 ## How to Play
@@ -113,4 +113,3 @@ Feel free to use, modify, and distribute this game as you wish!
 Created with ❤️ for Sudoku enthusiasts everywhere!
 
 Enjoy the game! 🎉
-
