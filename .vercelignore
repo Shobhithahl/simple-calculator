@@ -1,0 +1,25 @@
+# Ignore Python files and folders (not needed for static deployment)
+__pycache__/
+*.py[cod]
+*.pyc
+venv/
+env/
+*.log
+
+# Ignore Python game files (keep only the HTML version)
+game.py
+sudoku.py
+sudoku_gui.py
+sudoku_web.py
+run_gui.sh
+templates/
+
+# Ignore documentation (optional - uncomment if you want to exclude)
+# README.md
+# TROUBLESHOOTING.md
+# GUI_FEATURES.md
+# QUICK_START.md
+
+# Keep only what's needed for web deployment
+# Keep: index.html, sudoku_standalone.html, vercel.json
+
