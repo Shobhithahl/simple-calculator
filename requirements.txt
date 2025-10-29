@@ -2,3 +2,9 @@
 # This game uses only Python standard library
 # Python 3.6+ recommended
 
+# Optional: For web version (Flask-based)
+# flask==3.0.0
+
+# Note: The standalone HTML version requires NO installation!
+# Just open sudoku_standalone.html in your browser
+

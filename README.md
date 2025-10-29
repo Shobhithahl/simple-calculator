@@ -26,12 +26,54 @@ cd simple-calculator
 
 ## How to Play
 
-1. Run the game:
+### 🌐 Web Version (Recommended - No Installation!) 
+
+**The easiest way to play!** Just open the HTML file in your browser:
+
+**Option 1 - Double-click the file:**
+- Find `sudoku_standalone.html` in the folder
+- Double-click to open in your default browser
+
+**Option 2 - Command line:**
+```bash
+open sudoku_standalone.html
+```
+
+**Features:**
+- ✨ Beautiful, modern web interface
+- 🎨 Click-to-play with visual animations
+- 🔢 Number pad + keyboard support (1-9, arrows)
+- 💡 Hint system with visual feedback
+- ✓ Error checking with highlighting
+- 📱 Works on any device with a browser
+- ⚡ No installation or dependencies needed!
+
+### 🖥️ GUI Version (Tkinter - macOS/Linux/Windows)
+
+Run the graphical desktop interface:
+
+**macOS:**
+```bash
+./run_gui.sh
+```
+
+Or directly:
+```bash
+/usr/bin/python3 sudoku_gui.py
+```
+
+> **Note**: Requires Tkinter. macOS system Python has it built-in.
+
+### ⌨️ Terminal Version
+
+Run the text-based version:
 ```bash
 python3 game.py
 ```
 
-2. Select your difficulty level:
+### Game Instructions
+
+1. Select your difficulty level:
    - **Easy**: 35 cells removed (46 given numbers)
    - **Medium**: 45 cells removed (36 given numbers)
    - **Hard**: 55 cells removed (26 given numbers)
@@ -74,9 +116,12 @@ Your move: 0 2 4
 
 ## Files
 
+- **`sudoku_standalone.html`** - 🌐 **Web version (RECOMMENDED!)** - Just open in browser!
 - `sudoku.py` - Core game logic (board generation, validation, solving)
-- `game.py` - Terminal interface and game loop
-- `requirements.txt` - Python dependencies (none required!)
+- `sudoku_gui.py` - Desktop GUI (Tkinter)
+- `sudoku_web.py` - Flask web server (optional)
+- `game.py` - Terminal interface
+- `requirements.txt` - Dependencies info
 - `README.md` - This file
 
 ## Tips for Playing

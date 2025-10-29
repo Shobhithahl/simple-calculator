@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Sudoku Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .board-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        #sudoku-board {
+            display: grid;
+            grid-template-columns: repeat(9, 50px);
+            grid-template-rows: repeat(9, 50px);
+            gap: 0;
+            border: 3px solid #2c3e50;
+            background: #2c3e50;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #bdc3c7;
+        }
+
+        .cell:hover:not(.original) {
+            background: #e8f4f8;
+        }
+
+        .cell.selected {
+            background: #3498db !important;
+            color: white;
+        }
+
+        .cell.original {
+            background: #ecf0f1;
+            color: #2c3e50;
+            cursor: not-allowed;
+        }
+
+        .cell.player {
+            color: #3498db;
+        }
+
+        .cell.hint {
+            color: #27ae60;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Thicker borders for 3x3 boxes */
+        .cell:nth-child(3n) {
+            border-right: 2px solid #2c3e50;
+        }
+
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid #2c3e50;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 10px;
+        }
+
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .number-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .number-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-hint { background: #27ae60; }
+        .btn-check { background: #f39c12; }
+        .btn-restart { background: #9b59b6; }
+        .btn-new { background: #e74c3c; }
+        .btn-clear { background: #e74c3c; }
+
+        .instructions {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message.success { background: #27ae60; }
+        .message.error { background: #e74c3c; }
+        .message.info { background: #3498db; }
+
+        @media (max-width: 768px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            #sudoku-board {
+                grid-template-columns: repeat(9, 40px);
+                grid-template-rows: repeat(9, 40px);
+            }
+            
+            .cell {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Sudoku Game</h1>
+        <p class="subtitle">Click a cell and use the number pad to play!</p>
+        
+        <div class="game-container">
+            <div class="board-container">
+                <div id="sudoku-board"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="number-pad" id="number-pad">
+                    <button class="number-btn" onclick="placeNumber(1)">1</button>
+                    <button class="number-btn" onclick="placeNumber(2)">2</button>
+                    <button class="number-btn" onclick="placeNumber(3)">3</button>
+                    <button class="number-btn" onclick="placeNumber(4)">4</button>
+                    <button class="number-btn" onclick="placeNumber(5)">5</button>
+                    <button class="number-btn" onclick="placeNumber(6)">6</button>
+                    <button class="number-btn" onclick="placeNumber(7)">7</button>
+                    <button class="number-btn" onclick="placeNumber(8)">8</button>
+                    <button class="number-btn" onclick="placeNumber(9)">9</button>
+                </div>
+                
+                <button class="btn btn-clear" onclick="placeNumber(0)">🗑️ Clear Cell</button>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-hint" onclick="getHint()">💡 Hint</button>
+                    <button class="btn btn-check" onclick="checkSolution()">✓ Check</button>
+                    <button class="btn btn-restart" onclick="restartGame()">🔄 Restart</button>
+                    <button class="btn btn-new" onclick="showDifficultyModal()">🆕 New Game</button>
+                </div>
+                
+                <div class="instructions">
+                    <h3>📖 How to Play</h3>
+                    <ul>
+                        <li>Click a cell to select it</li>
+                        <li>Use number pad or keyboard (1-9)</li>
+                        <li>Press 0 or Backspace to clear</li>
+                        <li>Fill each row, column, and 3×3 box with 1-9</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Difficulty Selection Modal -->
+    <div id="difficulty-modal" class="modal active">
+        <div class="modal-content">
+            <h2>Select Difficulty</h2>
+            <div class="difficulty-buttons">
+                <button class="btn btn-hint" onclick="startNewGame('easy')">🟢 Easy</button>
+                <button class="btn btn-check" onclick="startNewGame('medium')">🟡 Medium</button>
+                <button class="btn btn-new" onclick="startNewGame('hard')">🔴 Hard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Toast -->
+    <div id="message" class="message"></div>
+
+    <script>
+        let selectedCell = null;
+        let originalBoard = [];
+        let currentBoard = [];
+
+        function createBoard() {
+            const board = document.getElementById('sudoku-board');
+            board.innerHTML = '';
+            
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.onclick = () => selectCell(row, col);
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function updateBoard(board, original) {
+            currentBoard = board;
+            originalBoard = original;
+            
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    const value = board[row][col];
+                    const isOriginal = original[row][col] !== 0;
+                    
+                    cell.textContent = value === 0 ? '' : value;
+                    cell.className = 'cell';
+                    
+                    if (isOriginal) {
+                        cell.classList.add('original');
+                    } else if (value !== 0) {
+                        cell.classList.add('player');
+                    }
+                }
+            }
+        }
+
+        function selectCell(row, col) {
+            if (originalBoard[row][col] !== 0) {
+                showMessage('Cannot change original numbers!', 'error');
+                return;
+            }
+            
+            // Deselect previous
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+            
+            // Select new
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            cell.classList.add('selected');
+            selectedCell = cell;
+        }
+
+        function placeNumber(num) {
+            if (!selectedCell) {
+                showMessage('Please select a cell first!', 'info');
+                return;
+            }
+            
+            const row = parseInt(selectedCell.dataset.row);
+            const col = parseInt(selectedCell.dataset.col);
+            
+            fetch('/make_move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ row, col, num })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateBoard(data.board, originalBoard);
+                    
+                    if (data.complete) {
+                        setTimeout(() => {
+                            showVictory();
+                        }, 500);
+                    }
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            });
+        }
+
+        function getHint() {
+            fetch('/get_hint')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    updateBoard(data.board, originalBoard);
+                    const cell = document.querySelector(`[data-row="${data.row}"][data-col="${data.col}"]`);
+                    cell.classList.add('hint');
+                    showMessage(`Hint: ${data.num} at (${data.row}, ${data.col})`, 'success');
+                    
+                    if (data.complete) {
+                        setTimeout(() => showVictory(), 500);
+                    }
+                }
+            });
+        }
+
+        function checkSolution() {
+            fetch('/check_solution')
+            .then(res => res.json())
+            .then(data => {
+                if (data.complete) {
+                    showVictory();
+                } else {
+                    showMessage(data.message, data.errors > 0 ? 'error' : 'success');
+                }
+            });
+        }
+
+        function restartGame() {
+            if (confirm('Are you sure you want to restart?')) {
+                fetch('/restart')
+                .then(res => res.json())
+                .then(data => {
+                    updateBoard(data.board, originalBoard);
+                    selectedCell = null;
+                    showMessage('Game restarted!', 'info');
+                });
+            }
+        }
+
+        function showDifficultyModal() {
+            document.getElementById('difficulty-modal').classList.add('active');
+        }
+
+        function startNewGame(difficulty) {
+            document.getElementById('difficulty-modal').classList.remove('active');
+            showMessage('Generating puzzle...', 'info');
+            
+            fetch(`/new_game/${difficulty}`)
+            .then(res => res.json())
+            .then(data => {
+                createBoard();
+                updateBoard(data.board, data.original);
+                selectedCell = null;
+                showMessage(`New ${difficulty} game started!`, 'success');
+            });
+        }
+
+        function showVictory() {
+            if (confirm('🎉 Congratulations! You solved the puzzle!\n\nPlay again?')) {
+                showDifficultyModal();
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '9') {
+                placeNumber(parseInt(e.key));
+            } else if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+                placeNumber(0);
+            } else if (e.key === 'h' || e.key === 'H') {
+                getHint();
+            }
+        });
+
+        // Initialize
+        createBoard();
+    </script>
+</body>
+</html>
+
